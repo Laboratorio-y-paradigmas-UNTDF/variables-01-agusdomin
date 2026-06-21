@@ -20,7 +20,11 @@ export function buggyVarLoop(n: number): number[] {
 // CORRECTO: usar let para que cada iteración cree su propio binding de i.
 // fixedVarLoop(3) → [0, 1, 2]
 export function fixedVarLoop(n: number): number[] {
-  throw new Error("TODO: implementar");
+  const fns: Array<() => number> = [];
+  for (let i = 0; i < n; i++) { // eslint-disable-line no-var
+    fns.push(() => i);           // BUGGY: todas capturan la misma i
+  }
+  return fns.map((f) => f());
 }
 
 // --- 5b: shadowing involuntario ---
@@ -40,7 +44,12 @@ export function buggySum(nums: number[]): number {
 // CORRECTO: sumar todos los elementos SIN crear un binding que opaque al acumulador.
 // fixedSum([1, 2, 3]) → 6
 export function fixedSum(nums: number[]): number {
-  throw new Error("TODO: implementar");
+  let result = 0;
+  nums.forEach(function (n) {
+    result += n; // BUGGY: shadowing — nuevo binding local, no el acumulador
+    void result;      // TypeScript: evitar "declared but never read"
+  });
+  return result;
 }
 
 // --- 5c: suma sin variables globales ---
@@ -51,5 +60,9 @@ export function fixedSum(nums: number[]): number {
 // fixedSumArray([])            → 0
 // fixedSumArray([-1, -2, 3])  → 0
 export function fixedSumArray(nums: number[]): number {
-  throw new Error("TODO: implementar");
+  let total = 0; // Declaración correcta y local
+  for (const num of nums) {
+    total += num;
+  }
+  return total;
 }
